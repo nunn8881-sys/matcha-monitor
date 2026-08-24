@@ -31,6 +31,10 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+          # Love Matcha's host silently drops connections from GitHub's
+          # (Azure) IP range, so it's monitored separately by a local
+          # process on a home IP instead. See matcha-monitor.js SITES_FILTER.
+          SITES_FILTER: marukyu
         run: npm run check
 
       - name: Commit updated state

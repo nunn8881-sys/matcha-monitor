@@ -12,10 +12,21 @@ const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 const CHECK_INTERVAL_MS = 20 * 60 * 1000; // 20 minutes
-const STATE_FILE = path.join(__dirname, 'matcha-state.json');
-const LOG_FILE = path.join(__dirname, 'matcha-monitor.log');
+const STATE_FILE = process.env.STATE_FILE_PATH || path.join(__dirname, 'matcha-state.json');
+const LOG_FILE = process.env.LOG_FILE_PATH || path.join(__dirname, 'matcha-monitor.log');
+
+fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true });
+fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
 
 const { GMAIL_USER, GMAIL_APP_PASSWORD, ALERT_EMAIL } = process.env;
+
+// Optional comma-separated list of site keys to restrict this run to, e.g.
+// "marukyu" or "lovematcha". Used to split monitoring across two runners
+// (see README-style notes in the workflow / launchd config) when one site
+// blocks a runner's network but not the other's.
+const SITES_FILTER = process.env.SITES_FILTER
+  ? process.env.SITES_FILTER.split(',').map((s) => s.trim())
+  : null;
 
 const SITES = [
   {
@@ -223,7 +234,9 @@ async function checkAllSites() {
   if (!state.__meta) state.__meta = { consecutiveFailures: {} };
   if (!state.__meta.consecutiveFailures) state.__meta.consecutiveFailures = {};
 
-  for (const site of SITES) {
+  const sitesToCheck = SITES_FILTER ? SITES.filter((s) => SITES_FILTER.includes(s.key)) : SITES;
+
+  for (const site of sitesToCheck) {
     try {
       await checkSite(site, state);
       state.__meta.consecutiveFailures[site.key] = 0;

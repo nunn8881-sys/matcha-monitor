@@ -26,6 +26,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Diagnose Love Matcha connectivity
+        run: |
+          curl -v --max-time 15 -o /dev/null https://lovematcha.co.nz/shop/ 2>&1 | tail -60 || true
+
       - name: Run matcha check
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}

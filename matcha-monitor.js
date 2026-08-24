@@ -149,12 +149,20 @@ function parseProducts(html, site) {
   return products;
 }
 
-async function fetchHtmlHttp(site) {
-  const response = await axios.get(site.url, {
-    timeout: 20000,
-    headers: { 'User-Agent': USER_AGENT },
-  });
-  return response.data;
+async function fetchHtmlHttp(site, attempt = 1) {
+  try {
+    const response = await axios.get(site.url, {
+      timeout: 30000,
+      headers: { 'User-Agent': USER_AGENT },
+    });
+    return response.data;
+  } catch (err) {
+    if (attempt < 2) {
+      log(`${site.name}: fetch failed (${err.message}), retrying...`);
+      return fetchHtmlHttp(site, attempt + 1);
+    }
+    throw err;
+  }
 }
 
 async function fetchHtmlBrowser(site) {

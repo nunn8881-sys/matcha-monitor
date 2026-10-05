@@ -8,58 +8,58 @@
   "marukyu": {
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1111020c1": {
       "name": "Tenju",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:11.042Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1151020c1": {
       "name": "Kinrin",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:14.181Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1g36020c1": {
       "name": "Kiwami Choan",
       "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "lastChecked": "2026-10-05T02:20:19.043Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1141020c1": {
       "name": "Unkaku",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:10.124Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1161020c1": {
       "name": "Wako",
       "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "lastChecked": "2026-10-05T02:20:19.043Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1121020c1": {
       "name": "Choan",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:12.000Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1131020c1": {
       "name": "Eiju",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:12.956Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1171020c1": {
       "name": "Yugen",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:15.096Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1181040c1": {
       "name": "Chigi no Shiro",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:16.005Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/1191040c1": {
       "name": "Isuzu",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:17.950Z"
     },
     "https://www.marukyu-koyamaen.co.jp/english/shop/products/11a1040c1": {
       "name": "Aoarashi",
-      "inStock": false,
-      "lastChecked": "2026-10-04T23:32:35.841Z"
+      "inStock": true,
+      "lastChecked": "2026-10-05T02:20:19.043Z"
     }
   }
 }

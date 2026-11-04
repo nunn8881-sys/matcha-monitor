@@ -7,15 +7,30 @@ name: Matcha Restock Monitor
 # (the concurrency group lets only one run at a time; the next waits, then
 # starts the moment the current one finishes).
 #
+# Even hourly cron ticks can be skipped, so each successful run also queues
+# the next one itself at the end (a relay hand-off). The cron is only a
+# backup that restarts the chain if a run ever dies. To stop monitoring
+# completely, disable this workflow on the Actions tab.
+#
 # The repo is public, so Actions minutes are free and unlimited.
 
 on:
   schedule:
     - cron: '7 * * * *'
   workflow_dispatch: {}
+  # Start right away when the monitor's code changes (the bot's own state
+  # commits don't touch these files, so this can't loop).
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/matcha-monitor.yml'
+      - 'matcha-monitor.js'
+      - 'package.json'
+      - 'package-lock.json'
 
 permissions:
   contents: write
+  actions: write # lets a run queue the next run
 
 concurrency:
   group: matcha-monitor
@@ -73,3 +88,11 @@ jobs:
           git add matcha-state.json
           git diff --staged --quiet || git commit -m "Update matcha state"
           git pull --rebase && git push
+
+      # Only after a full, successful watch (~5.5h), so a broken setup can't
+      # spin up runs in a tight loop; the hourly cron covers that case.
+      - name: Queue the next run
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run matcha-monitor.yml --ref main

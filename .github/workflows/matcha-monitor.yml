@@ -60,6 +60,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
 
       - name: Watch for restocks
+        id: watch
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
@@ -90,9 +91,11 @@ jobs:
           git pull --rebase && git push
 
       # Only after a full, successful watch (~5.5h), so a broken setup can't
-      # spin up runs in a tight loop; the hourly cron covers that case.
+      # spin up runs in a tight loop; the hourly cron covers that case. It
+      # doesn't depend on "Commit final state", so a failed push of the state
+      # file doesn't break the chain.
       - name: Queue the next run
-        if: success()
+        if: ${{ !cancelled() && steps.watch.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run matcha-monitor.yml --ref main

@@ -20,14 +20,6 @@ fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
 
 const { GMAIL_USER, GMAIL_APP_PASSWORD, ALERT_EMAIL } = process.env;
 
-// Optional comma-separated list of site keys to restrict this run to, e.g.
-// "marukyu" or "lovematcha". Used to split monitoring across two runners
-// (see README-style notes in the workflow / launchd config) when one site
-// blocks a runner's network but not the other's.
-const SITES_FILTER = process.env.SITES_FILTER
-  ? process.env.SITES_FILTER.split(',').map((s) => s.trim())
-  : null;
-
 const SITES = [
   {
     key: 'marukyu',
@@ -40,14 +32,6 @@ const SITES = [
     // requests (axios/curl always get a 403 "Just a moment..." page), so it
     // needs a real/headless browser to render.
     renderMode: 'browser',
-  },
-  {
-    key: 'lovematcha',
-    name: 'Love Matcha',
-    url: 'https://lovematcha.co.nz/shop/',
-    productSelector: 'li.product',
-    nameSelector: '.wc-block-components-product-name, .woocommerce-loop-product__title, h2, h3',
-    linkSelector: 'a',
   },
 ];
 
@@ -234,9 +218,7 @@ async function checkAllSites() {
   if (!state.__meta) state.__meta = { consecutiveFailures: {} };
   if (!state.__meta.consecutiveFailures) state.__meta.consecutiveFailures = {};
 
-  const sitesToCheck = SITES_FILTER ? SITES.filter((s) => SITES_FILTER.includes(s.key)) : SITES;
-
-  for (const site of sitesToCheck) {
+  for (const site of SITES) {
     try {
       await checkSite(site, state);
       state.__meta.consecutiveFailures[site.key] = 0;
@@ -251,7 +233,7 @@ async function checkAllSites() {
   }
 
   saveState(state);
-  log('Check complete. Next check in 20 minutes.');
+  log('Check complete.');
 }
 
 // ---------- startup ----------

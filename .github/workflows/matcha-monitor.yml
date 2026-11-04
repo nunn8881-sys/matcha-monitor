@@ -1,8 +1,17 @@
 name: Matcha Restock Monitor
 
+# GitHub's `schedule` trigger is best-effort: a '*/20' cron was really firing
+# only every 4-5 hours. So instead of relying on frequent cron ticks, each run
+# stays alive for ~5.5 hours and checks every 5 minutes itself. The hourly
+# cron just makes sure a fresh run is always queued behind the current one
+# (the concurrency group lets only one run at a time; the next waits, then
+# starts the moment the current one finishes).
+#
+# The repo is public, so Actions minutes are free and unlimited.
+
 on:
   schedule:
-    - cron: '*/20 * * * *'
+    - cron: '7 * * * *'
   workflow_dispatch: {}
 
 permissions:
@@ -15,6 +24,10 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 350 # GitHub's hard limit is 360
+    env:
+      CHECK_EVERY_SECONDS: 300 # 5 minutes
+      RUN_FOR_MINUTES: 330 # leave headroom before timeout-minutes
     steps:
       - uses: actions/checkout@v4
 
@@ -26,21 +39,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run matcha check
+      - name: Configure git
+        run: |
+          git config user.name "matcha-monitor-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Watch for restocks
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
-          # Love Matcha's host silently drops connections from GitHub's
-          # (Azure) IP range, so it's monitored separately by a local
-          # process on a home IP instead. See matcha-monitor.js SITES_FILTER.
-          SITES_FILTER: marukyu
-        run: npm run check
-
-      - name: Commit updated state
         run: |
-          git config user.name "matcha-monitor-bot"
-          git config user.email "actions@users.noreply.github.com"
+          push_state() {
+            git add matcha-state.json
+            git commit -q -m "$1" && { git pull -q --rebase && git push -q || echo "push failed, will retry next time"; }
+          }
+
+          end=$(( $(date +%s) + RUN_FOR_MINUTES * 60 ))
+          while [ "$(date +%s)" -lt "$end" ]; do
+            npm run check || echo "check exited with an error; continuing"
+            # Commit right away only if something other than timestamps
+            # changed (stock status, failure counts, new products), so we
+            # don't create a commit every 5 minutes.
+            if ! git diff --quiet -I '"lastChecked"' -- matcha-state.json; then
+              push_state "Update matcha state (stock change)"
+            fi
+            sleep "$CHECK_EVERY_SECONDS"
+          done
+
+      - name: Commit final state
+        if: always()
+        run: |
           git add matcha-state.json
           git diff --staged --quiet || git commit -m "Update matcha state"
-          git push
+          git pull --rebase && git push
